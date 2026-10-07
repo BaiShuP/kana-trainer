@@ -29,7 +29,8 @@ body{
   min-height:100vh;
 }
 .wrap{max-width:880px;margin:0 auto;padding:18px 16px 60px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+header{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  margin-bottom:14px;padding-right:46px}
 .brand{display:flex;align-items:center;gap:10px}
 .logo{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
   background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:20px;font-weight:700;color:#fff;
@@ -43,8 +44,54 @@ h1{font-size:18px;margin:0;letter-spacing:.5px}
 .tab:hover{color:var(--ink)}
 .tab.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 14px rgba(255,90,122,.28)}
 
+/* ===== 顶部折叠 ===== */
+.btn-fold{position:absolute;top:0;right:0;width:40px;height:40px;flex:none;padding:0;
+  border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink2);
+  font-size:16px;line-height:1;display:grid;place-items:center;cursor:pointer;z-index:30;transition:.16s}
+.btn-fold:hover{color:var(--ink);border-color:#3d475a}
+body.folded .wrap{padding-top:52px}
+body.folded header{position:fixed;top:0;left:0;right:0;z-index:29;margin:0;padding:8px 52px 8px 10px;
+  background:rgba(15,17,21,.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  flex-wrap:nowrap;overflow:hidden;height:52px;align-items:center}
+body.folded .brand{display:none}
+body.folded .tabs{gap:4px;padding:4px;flex-wrap:nowrap;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+body.folded .tabs::-webkit-scrollbar{display:none}
+body.folded .tab{padding:6px 9px;font-size:12px;flex:none}
+body.folded .optbar{margin:8px 0 0;padding:8px 12px}
+.btn-fold::after{content:"\25B2"}
+body.folded .btn-fold::after{content:"\25BC"}
+body.folded .btn-fold{top:6px;right:10px;width:36px;height:36px}
+/* 折叠 + 学习模式时锁定一屏 */
+@media (max-width:640px){
+  html,body{height:100%}
+  body.folded{overflow:hidden}
+  body.folded .optbar{display:none!important}
+  body.folded .wrap{height:100dvh;display:flex;flex-direction:column;padding:60px 12px 8px;overflow:hidden}
+  body.folded .card{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px}
+  body.folded footer{display:none}
+  body.folded .prompt{padding:0 0 8px;gap:2px}
+  body.folded .romaji{font-size:clamp(30px,9vw,44px)}
+  body.folded .kanaBig{font-size:clamp(56px,17vw,88px)}
+  body.folded .board{max-width:none;width:100%;flex:1;min-height:0;aspect-ratio:auto;margin:0 auto}
+  body.folded .row{margin-top:10px;gap:8px;flex-wrap:nowrap}
+  body.folded .row .btn{flex:1;min-width:0;padding:10px 6px;font-size:13px}
+  body.folded .answer{margin-top:8px;padding:10px}
+  body.folded .answer .grid2{gap:10px}
+  body.folded .answer .cell .glyph{font-size:clamp(38px,12vw,56px)}
+  body.folded .answer .note{font-size:11.5px}
+  body.folded .inputbox input{font-size:clamp(20px,6vw,26px);padding:12px}
+  body.folded .verdict{margin-top:8px;font-size:14px}
+  body.folded .score{display:none}
+  /* 折叠且答案展开时压缩手写板 */
+  body.folded.has-answer .board{flex:0 0 34%}
+  body.folded.has-answer .answer{flex:0 0 auto;max-height:32%;overflow-y:auto}
+}
+
 .panel{display:none;animation:fade .25s ease}
 .panel.on{display:block}
+@media (max-width:640px){
+  body.folded .panel.on{display:flex;flex-direction:column;flex:1;min-height:0}
+}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 .optbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:14px 0 12px;padding:11px 14px;
@@ -109,6 +156,15 @@ button.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .verdict.ok{color:var(--ok)}
 .verdict.bad{color:var(--bad)}
 
+/* 自评（模式3手写方向） */
+.selfcheck{text-align:center;margin-top:12px;animation:fade .25s ease}
+.selfcheck .cap2{font-size:12.5px;color:var(--ink2)}
+.selfcheck .row{margin-top:8px}
+button.okbtn{border-color:rgba(61,220,151,.45);color:var(--ok)}
+button.okbtn:hover{background:rgba(61,220,151,.12);border-color:var(--ok)}
+button.badbtn{border-color:rgba(255,107,107,.45);color:var(--bad)}
+button.badbtn:hover{background:rgba(255,107,107,.12);border-color:var(--bad)}
+
 .score{display:flex;gap:18px;justify-content:center;font-size:12.5px;color:var(--ink2);margin-top:14px;flex-wrap:wrap}
 .score b{color:var(--ink);font-size:14px}
 
@@ -145,6 +201,7 @@ kbd{background:var(--card2);border:1px solid var(--line);border-radius:5px;paddi
       <button class="tab" data-tab="2">假名 ↔ 读音</button>
       <button class="tab" data-tab="3">五十音图</button>
     </div>
+    <button class="btn-fold" id="btnFold" aria-label="折叠顶部"></button>
   </header>
 
   <!-- ========== 通用选项条 ========== -->
@@ -169,9 +226,9 @@ kbd{background:var(--card2);border:1px solid var(--line);border-radius:5px;paddi
         <div class="hint">在此手写</div>
       </div>
       <div class="row">
-        <button class="btn ghost" id="p0-undo">撤销</button>
-        <button class="btn ghost" id="p0-clear">清空</button>
-        <button class="btn primary" id="p0-done">写完了</button>
+        <button class="btn ghost" id="p0-prev">← 上一个</button>
+        <button class="btn primary" id="p0-done">答案</button>
+        <button class="btn ghost" id="p0-redraw">重写</button>
         <button class="btn" id="p0-next">下一个 →</button>
       </div>
       <div class="answer" id="p0-answer">
@@ -196,9 +253,9 @@ kbd{background:var(--card2);border:1px solid var(--line);border-radius:5px;paddi
         <div class="hint">在此手写</div>
       </div>
       <div class="row">
-        <button class="btn ghost" id="p1-undo">撤销</button>
-        <button class="btn ghost" id="p1-clear">清空</button>
-        <button class="btn primary" id="p1-done">写完了</button>
+        <button class="btn ghost" id="p1-prev">← 上一个</button>
+        <button class="btn primary" id="p1-done">答案</button>
+        <button class="btn ghost" id="p1-redraw">重写</button>
         <button class="btn" id="p1-next">下一个 →</button>
       </div>
       <div class="answer" id="p1-answer">
@@ -222,10 +279,22 @@ kbd{background:var(--card2);border:1px solid var(--line);border-radius:5px;paddi
       <div class="inputbox" id="p2-inputbox">
         <input type="text" id="p2-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="?">
       </div>
+      <div class="board" id="board2" style="display:none">
+        <canvas></canvas>
+        <div class="hint">手写平假名</div>
+      </div>
       <div class="verdict" id="p2-verdict"></div>
+      <div class="selfcheck" id="p2-self" style="display:none">
+        <div class="cap2">你写对了吗？</div>
+        <div class="row">
+          <button class="btn okbtn" id="p2-okbtn">✓ 写对了</button>
+          <button class="btn badbtn" id="p2-nobtn">✗ 写错了</button>
+        </div>
+      </div>
       <div class="row">
+        <button class="btn ghost" id="p2-prev">← 上一个</button>
         <button class="btn primary" id="p2-check">确定</button>
-        <button class="btn" id="p2-show">看答案</button>
+        <button class="btn" id="p2-show">答案</button>
         <button class="btn" id="p2-next">下一个 →</button>
       </div>
       <div class="answer" id="p2-answer">
@@ -269,8 +338,9 @@ kbd{background:var(--card2);border:1px solid var(--line);border-radius:5px;paddi
   </div>
 
   <footer>
-    模式 1/2：点 <kbd>写完了</kbd> 或按 <kbd>Enter</kbd> 查看答案 · 按 <kbd>空格</kbd> 下一题<br>
-    模式 3：回车即可判定 · 罗马音支持 si/shi、tu/tsu、ti/chi 等写法
+    模式 1/2：点 <kbd>答案</kbd> 或按 <kbd>空格</kbd> 查看答案 · <kbd>Enter</kbd> 下一题 · <kbd>←</kbd> 上一题<br>
+    模式 3：显示假名时输入罗马音，回车判定；显示读音时为手写模式，点答案后自评<br>
+    右上角 <kbd>▽</kbd> 可折叠顶部，手机端一屏显示、无需滚动
   </footer>
 </div>
 
@@ -347,7 +417,7 @@ const state = {
   dakuOn:false, youOn:false,
   mode0:{list:[],idx:0},
   mode1:{list:[],idx:0},
-  mode2:{cur:null,dir:"h2r",prev:null,answered:false},
+  mode2:{cur:null,dir:"h2r",prev:null,answered:false,history:[]},
   stat:{total:0,right:0,wrong:0},
   shuffle:true
 };
@@ -376,7 +446,23 @@ function defaultPool(){
   state.pool = new Set(ALL.filter(k=>k.type==="seion").map(k=>k.id));
 }
 
-/* ================= 手写板 ================= */
+/* ===== 顶部折叠 ===== */
+function setFolded(v){
+  document.body.classList.toggle("folded", v);
+  try{ localStorage.setItem("kanaFolded", v?"1":"0"); }catch(e){}
+}
+$("btnFold").onclick = ()=> setFolded(!document.body.classList.contains("folded"));
+try{ if(localStorage.getItem("kanaFolded")==="1") document.body.classList.add("folded"); }catch(e){}
+function syncAnswerClass(){
+  const on = document.querySelector(".answer.show") ? true : false;
+  document.body.classList.toggle("has-answer", on);
+}
+function relayoutBoards(){
+  board0.resize(); board1.resize(); board2.resize();
+}
+window.addEventListener("resize", relayoutBoards);
+
+/* ===== 工厂：手写板（导出用于模式3） ===== */
 function createBoard(root){
   const canvas = root.querySelector("canvas");
   const hint = root.querySelector(".hint");
@@ -472,6 +558,7 @@ function createBoard(root){
 /* ================= 模式 1 / 2 ================= */
 const board0 = createBoard($("board0"));
 const board1 = createBoard($("board1"));
+const board2 = createBoard($("board2"));
 
 function buildQueue(modeKey){
   let list = activeList().slice();
@@ -497,6 +584,14 @@ function renderHandwrite(mode){
   rm.textContent = k.r;
   p.textContent = `第 ${st.idx+1} / ${list.length} 个`;
   (mode===0?board0:board1).clear();
+  if(mode===0) syncAnswerClass();
+}
+
+function prevHandwrite(mode){
+  const st = state["mode"+mode];
+  if(!st.list.length) return;
+  st.idx = (st.idx - 1 + st.list.length) % st.list.length;
+  renderHandwrite(mode);
 }
 
 function showAnswerHandwrite(mode){
@@ -512,6 +607,7 @@ function showAnswerHandwrite(mode){
     $("p1-h").textContent=k.h; $("p1-hr").textContent=k.r;
   }
   ans.classList.add("show");
+  syncAnswerClass();
 }
 
 function nextHandwrite(mode){
@@ -529,60 +625,113 @@ $("p0-done").onclick = ()=>showAnswerHandwrite(0);
 $("p1-done").onclick = ()=>showAnswerHandwrite(1);
 $("p0-next").onclick = ()=>nextHandwrite(0);
 $("p1-next").onclick = ()=>nextHandwrite(1);
-$("p0-clear").onclick = ()=>board0.clear();
-$("p1-clear").onclick = ()=>board1.clear();
-$("p0-undo").onclick  = ()=>board0.undo();
-$("p1-undo").onclick  = ()=>board1.undo();
+$("p0-prev").onclick = ()=>prevHandwrite(0);
+$("p1-prev").onclick = ()=>prevHandwrite(1);
+$("p0-redraw").onclick = ()=>{ board0.clear(); $("p0-answer").classList.remove("show"); syncAnswerClass(); };
+$("p1-redraw").onclick = ()=>{ board1.clear(); $("p1-answer").classList.remove("show"); };
 
 /* ================= 模式 3 ================= */
 function renderMode2(){
+  if(state.mode2.cur){
+    state.mode2.history.push({id:state.mode2.cur.id, dir:state.mode2.dir});
+    if(state.mode2.history.length>200) state.mode2.history.shift();
+  }
+  const k = pickRandom(activeList(), state.mode2.cur?state.mode2.cur.id:null);
+  const dir = Math.random()<0.5 ? "h2r" : "r2h";
+  applyMode2(k, dir);
+}
+
+/* 回到上一题 */
+function prevMode2(){
+  if(!state.mode2.history.length) return;
+  const h = state.mode2.history.pop();
+  const k = ALL.find(x=>x.id===h.id);
+  if(!k) return;
+  applyMode2(k, h.dir);
+}
+
+function applyMode2(k, dir){
   const list = activeList();
   const cap=$("p2-cap"), big=$("p2-big"), rom=$("p2-rom"), inp=$("p2-input"),
-        box=$("p2-inputbox"), vd=$("p2-verdict"), ans=$("p2-answer");
+        box=$("p2-inputbox"), vd=$("p2-verdict"), ans=$("p2-answer"),
+        boardWrap=$("board2"), selfBox=$("p2-self"), btnCheck=$("p2-check");
 
   ans.classList.remove("show");
+  selfBox.style.display="none";
   vd.textContent=""; vd.className="verdict";
   box.classList.remove("ok","bad");
   inp.value="";
+  board2.clear();
   state.mode2.answered=false;
+  syncAnswerClass();
 
-  if(!list.length){
+  if(!list.length || !k){
     cap.textContent="当前没有可练习的假名";
     big.style.display="none"; rom.style.display="block"; rom.textContent="—";
     inp.disabled=true; inp.placeholder="";
+    box.style.display="none"; boardWrap.style.display="none"; btnCheck.style.display="none";
     $("p2-progress").textContent="请到「五十音图」中勾选，或打开浊音/拗音开关。";
+    state.mode2.cur=null;
     return;
   }
   inp.disabled=false;
-  const k = pickRandom(list, state.mode2.cur?state.mode2.cur.id:null);
   state.mode2.cur = k;
-  state.mode2.dir = Math.random()<0.5 ? "h2r" : "r2h";
+  state.mode2.dir = dir;
 
-  if(state.mode2.dir==="h2r"){
+  if(dir==="h2r"){
     cap.textContent="这个假名怎么读？请输入罗马音";
     big.style.display="block"; big.textContent = k.h;
     rom.style.display="none";
+    box.style.display=""; boardWrap.style.display="none"; btnCheck.style.display="";
     inp.placeholder = "romaji";
+    if(!document.body.classList.contains("folded")) inp.focus({preventScroll:true});
   }else{
-    cap.textContent="这个读音对应什么假名？请输入平假名";
+    cap.textContent="这个读音怎么写？请手写平假名";
     big.style.display="none";
     rom.style.display="block"; rom.textContent = k.r;
-    inp.placeholder = "ひらがな";
+    box.style.display="none"; boardWrap.style.display=""; btnCheck.style.display="none";
+    requestAnimationFrame(()=>board2.resize());
   }
   $("p2-progress").textContent = `已选 ${list.length} 个假名 · 随机出题`;
-  inp.focus({preventScroll:true});
+}
+
+/* 手写方向的「答案」+ 自评 */
+function showAnswerMode2(){
+  const k = state.mode2.cur;
+  if(!k) return;
+  const vd=$("p2-verdict"), ans=$("p2-answer"), selfBox=$("p2-self");
+  $("p2-h").textContent=k.h;  $("p2-hr").textContent=k.r;
+  $("p2-k").textContent=k.kt; $("p2-kr").textContent=k.r;
+  $("p2-note").textContent=`平假名 ${k.h} ／ 片假名 ${k.kt} ／ 罗马音 ${k.r}`;
+  ans.classList.add("show");
+  syncAnswerClass();
+  if(state.mode2.dir==="r2h" && !state.mode2.answered){
+    vd.className="verdict";
+    vd.textContent="正确答案如上，对照一下自己写的";
+    selfBox.style.display="block";
+  }
+}
+function selfGrade(ok){
+  if(state.mode2.answered) return;
+  state.mode2.answered=true;
+  state.stat.total++;
+  if(ok) state.stat.right++; else state.stat.wrong++;
+  updateStat();
+  const vd=$("p2-verdict");
+  vd.className = "verdict " + (ok?"ok":"bad");
+  vd.textContent = ok ? "✓ 记住了！" : "✗ 再练一遍";
+  $("p2-self").style.display="none";
 }
 
 function checkMode2(){
   const k = state.mode2.cur;
   if(!k || state.mode2.answered) return;
+  if(state.mode2.dir!=="h2r") { showAnswerMode2(); return; }
   const inp=$("p2-input"), box=$("p2-inputbox"), vd=$("p2-verdict"), ans=$("p2-answer");
   const val = inp.value;
   if(!val.trim()) return;
 
-  let ok = (state.mode2.dir==="h2r")
-    ? romajiMatch(val, k.r)
-    : val.trim() === k.h;
+  const ok = romajiMatch(val, k.r);
 
   state.mode2.answered=true;
   state.stat.total++;
@@ -591,12 +740,13 @@ function checkMode2(){
 
   box.classList.add(ok?"ok":"bad");
   vd.className = "verdict " + (ok?"ok":"bad");
-  vd.textContent = ok ? "✓ 正确！" : "✗ 答案：" + (state.mode2.dir==="h2r" ? k.r : k.h);
+  vd.textContent = ok ? "✓ 正确！" : "✗ 答案：" + k.r;
 
   $("p2-h").textContent=k.h;  $("p2-hr").textContent=k.r;
   $("p2-k").textContent=k.kt; $("p2-kr").textContent=k.r;
   $("p2-note").textContent = `平假名 ${k.h} ／ 片假名 ${k.kt} ／ 罗马音 ${k.r}`;
   ans.classList.add("show");
+  syncAnswerClass();
 }
 function updateStat(){
   const s=state.stat;
@@ -608,19 +758,20 @@ function updateStat(){
 $("p2-check").onclick = checkMode2;
 $("p2-show").onclick = ()=>{
   const k=state.mode2.cur; if(!k) return;
-  if(!state.mode2.answered){
+  if(state.mode2.dir==="h2r" && !state.mode2.answered){
+    /* 输入框方向：直接看答案算错 */
     state.stat.total++; state.stat.wrong++; updateStat();
     state.mode2.answered=true;
     $("p2-verdict").className="verdict bad";
-    $("p2-verdict").textContent="答案：" + (state.mode2.dir==="h2r"?k.r:k.h);
-    $("p2-h").textContent=k.h;  $("p2-hr").textContent=k.r;
-    $("p2-k").textContent=k.kt; $("p2-kr").textContent=k.r;
-    $("p2-note").textContent=`平假名 ${k.h} ／ 片假名 ${k.kt} ／ 罗马音 ${k.r}`;
-    $("p2-answer").classList.add("show");
+    $("p2-verdict").textContent="答案：" + k.r;
   }
+  showAnswerMode2();
 };
-$("p2-next").onclick = renderMode2;
-$("p2-reset").onclick = ()=>{ state.stat={total:0,right:0,wrong:0}; updateStat(); };
+$("p2-okbtn").onclick  = ()=>selfGrade(true);
+$("p2-nobtn").onclick  = ()=>selfGrade(false);
+$("p2-next").onclick   = renderMode2;
+$("p2-prev").onclick   = prevMode2;
+$("p2-reset").onclick  = ()=>{ state.stat={total:0,right:0,wrong:0}; updateStat(); };
 $("p2-input").addEventListener("keydown", e=>{
   if(e.key==="Enter"){ e.preventDefault(); state.mode2.answered ? renderMode2() : checkMode2(); }
 });
@@ -743,7 +894,12 @@ document.querySelectorAll(".tab").forEach(t=>{
     $("optbar").style.display = (t.dataset.tab==="3") ? "none" : "flex";
     if(t.dataset.tab==="0"){ board0.resize(); }
     if(t.dataset.tab==="1"){ board1.resize(); }
-    if(t.dataset.tab==="2"){ $("p2-input").focus({preventScroll:true}); }
+    if(t.dataset.tab==="2"){
+      requestAnimationFrame(()=>board2.resize());
+      if(state.mode2.dir==="h2r" && !document.body.classList.contains("folded"))
+        $("p2-input").focus({preventScroll:true});
+    }
+    syncAnswerClass();
   };
 });
 
@@ -755,6 +911,12 @@ window.addEventListener("keydown", e=>{
     const m=+tab;
     if(e.key===" "){ e.preventDefault(); showAnswerHandwrite(m); }
     if(e.key==="Enter"){ e.preventDefault(); nextHandwrite(m); }
+    if(e.key==="ArrowLeft"){ e.preventDefault(); prevHandwrite(m); }
+    if(e.key==="ArrowRight"){ e.preventDefault(); nextHandwrite(m); }
+  }
+  if(tab==="2"){
+    if(e.key==="ArrowLeft" && e.target.tagName!=="INPUT"){ e.preventDefault(); prevMode2(); }
+    if(e.key==="ArrowRight" && e.target.tagName!=="INPUT"){ e.preventDefault(); renderMode2(); }
   }
 });
 
